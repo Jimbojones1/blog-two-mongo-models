@@ -19,7 +19,13 @@ router.get('/new', (req, res) => {
   res.render('authors/new', {})
 })
 
-
+router.get('/:id', (req, res)=>{
+  Author.findById(req.params.id, (err, foundAuthor)=>{
+    res.render('authors/show.ejs', {
+      author: foundAuthor
+    });
+  });
+});
 
 
 module.exports = router;

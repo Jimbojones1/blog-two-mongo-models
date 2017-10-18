@@ -22,11 +22,28 @@
   </header>
   <main>
     <form action="/articles" method="Post">
+      <select name="authorId">
+        <% authors.forEach((author) => { %>
+          <option value="<%= author._id %>"><%= author.name %></option>}
+        <% }) %>
+      </select><br>
       <input type="text" name="title"><br>
       <textarea name="body"></textarea><br>
       <input type="submit" value="Publish Article">
     </form>
   </main>
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>
