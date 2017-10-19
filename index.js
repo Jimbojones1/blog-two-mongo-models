@@ -1,8 +1,17 @@
-const express = require('express');
-const app     = express();
-const bodyParser = require('body-parser');
+const express        = require('express');
+const app            = express();
+const bodyParser     = require('body-parser');
 const methodOverride = require('method-override');
+const session        = require('express-session')
 require('./db/db')
+
+app.use(session({
+  secret:'This is some random string you create',
+  resave: false,
+  saveUnitialized: false
+}))
+
+
 
 const authorController = require('./controllers/authors');
 const homeController  = require('./controllers/home')

@@ -63,6 +63,8 @@ router.route('/:id')
     })
   })
   .delete((req, res) => {
+    if(req.session.logged === true){
+
       Article.findByIdAndRemove(req.params.id, (err, deletedArticle) => {
         // req.params.id gives us the articles id
         Author.findOne({'articles._id': req.params.id}, (err, foundAuthor) => {
@@ -72,6 +74,11 @@ router.route('/:id')
           })
         })
       })
+    } else {
+      req.session.notLoggedMessage = 'Hey You gotta log in to delete an article, idiot';
+      res.redirect('/')
+    }
+
     })
   .put((req, res) => {
     // new: true tells the method to return the new/updated article, otherwise
@@ -92,13 +99,9 @@ router.route('/:id')
                 newAuthor.articles.push(updatedArticle);
                 newAuthor.save((err, savedNewAuthor) => {
                    res.redirect('/articles/' + req.params.id);
-                })
-
-              })
-
-
-            })
-
+                });
+              });
+            });
         } else {
 
             foundAuthor.articles.id(req.params.id).remove();

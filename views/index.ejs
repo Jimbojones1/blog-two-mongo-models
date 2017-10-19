@@ -20,5 +20,21 @@
       </ul>
     </nav>
   </header>
+
+  <% if(!logged){ %>
+
+  <form action="/login" method="POST">
+    <input type="text" name="username">
+    <input type="password" name="password">
+    <button>Login</button>
+  </form>
+
+  <% } %>
+
+  <% if(message){ %>
+    <h4><%= message %></h4>
+  <% } %>
+
+  <span><%= notLoggedInMessage %></span>
 </body>
 </html>
