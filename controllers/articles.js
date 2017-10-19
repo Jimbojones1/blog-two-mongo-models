@@ -52,12 +52,27 @@ router.route('/:id')
   })
   .delete((req, res) => {
       Article.findByIdAndRemove(req.params.id, (err, deletedArticle) => {
-        res.redirect('/articles')
+        // req.params.id gives us the articles id
+        Author.findOne({'articles._id': req.params.id}, (err, foundAuthor) => {
+          foundAuthor.articles.id(req.params.id).remove();
+          foundAuthor.save((err, data) => {
+            res.redirect('/articles')
+          })
+        })
       })
     })
   .put((req, res) => {
-    Article.findByIdAndUpdate(req.params.id, req.body, () => {
-      res.redirect('/articles');
+    // new: true tells the method to return the new/updated article, otherwise
+    // it returns the orignial copy
+    Article.findByIdAndUpdate(req.params.id, req.body, {new: true},(err, updatedArticle) => {
+
+      Author.findOne({'articles._id': req.params.id}, (err, foundAuthor) => {
+        foundAuthor.articles.id(req.params.id).remove();
+        foundAuthor.articles.push(updatedArticle);
+        foundAuthor.save((err, data) => {
+          res.redirect('/articles/' + req.params.id);
+        })
+      })
     })
   })
 
