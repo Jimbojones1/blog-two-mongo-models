@@ -34,9 +34,21 @@ router.get('/new', (req, res) => {
 
 router.get('/:id/edit', (req, res) => {
   Article.findById(req.params.id, (err, article) => {
-    res.render('articles/edit', {article: article})
-  })
-})
+    // this is finding all the authors which will return the variable allAuthors
+    Author.find((err, allAuthors) => {
+      // Finding the Author the current article we are editing
+      // that variable will foundAuthor
+      Author.findOne({'articles._id': req.params.id}, (err, foundAuthor) => {
+
+        res.render('articles/edit', {
+                                      article: article,
+                                      authors: allAuthors,
+                                      articleAuthor: foundAuthor
+                                     })
+      });
+    });
+  });
+});
 
 router.route('/:id')
   .get((req, res) => {
@@ -67,11 +79,34 @@ router.route('/:id')
     Article.findByIdAndUpdate(req.params.id, req.body, {new: true},(err, updatedArticle) => {
 
       Author.findOne({'articles._id': req.params.id}, (err, foundAuthor) => {
-        foundAuthor.articles.id(req.params.id).remove();
-        foundAuthor.articles.push(updatedArticle);
-        foundAuthor.save((err, data) => {
-          res.redirect('/articles/' + req.params.id);
-        })
+
+        // were removing the article from the author that the article belong too
+        // then after we save it we want to add the article to the new author
+        // that was selected in the drop down menu
+        if(foundAuthor._id.toString() !== req.body.authorId){
+            foundAuthor.articles.id(req.params.id).remove();
+            foundAuthor.save((err, savedFoundAuthor) => {
+              // finding the new author that was selected in the dropdown
+              Author.findById(req.body.authorId, (err, newAuthor) => {
+                // add the updated article to the new Author
+                newAuthor.articles.push(updatedArticle);
+                newAuthor.save((err, savedNewAuthor) => {
+                   res.redirect('/articles/' + req.params.id);
+                })
+
+              })
+
+
+            })
+
+        } else {
+
+            foundAuthor.articles.id(req.params.id).remove();
+            foundAuthor.articles.push(updatedArticle);
+            foundAuthor.save((err, data) => {
+              res.redirect('/articles/' + req.params.id);
+            })
+        }
       })
     })
   })
